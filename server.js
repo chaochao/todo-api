@@ -33,8 +33,8 @@ app.post('/todos', function (req, res) {
   if (!_.isBoolean(body.completed) || 
       !_.isString(body.description) ||
       body.description.trim().length === 0) {
-    res.status(400).send();
-    return
+    return res.status(400).send();
+
   }
   console.log('description: '+ body.description);
   var body = _.pick(body,'description', 'completed');
@@ -44,15 +44,31 @@ app.post('/todos', function (req, res) {
 });
 
 //PUT
-app.put('/todos/:id',function (req,res) {
-  var body = req.body;
+app.put('/todos/:id', function (req,res) {
+
   var todoId = parseInt(req.params.id, 10);
   var matchedTodo = _.findWhere(todos, {id: todoId});
-  if (matchedTodo) {
-    res.json(matchedTodo)
-  } else{
-    res.status(404).send();
+  if (!matchedTodo) {
+    return res.status(400).send(`no item with id: ${todoId}`);
   }
+  var body = _.pick(req.body,'description', 'completed');
+  var validAttributes = {};
+  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+    validAttributes.completed = body.completed;
+  } else if(body.hasOwnProperty('completed')) {
+    return res.status(400).json({"error":"completed attributes wrong"})
+  }
+  if (body.hasOwnProperty('description') &&
+      _.isString(body.description) &&
+      body.description.trim().length > 0) {
+    validAttributes.description = body.description;
+  } else if(body.hasOwnProperty('description')) {
+    return res.status(400).json({"error":"description attributes wrong"})
+  }
+  // pass by reference
+   _.extend(matchedTodo,validAttributes);
+
+  return res.json(matchedTodo)
 
 });
 
