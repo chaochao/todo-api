@@ -13,7 +13,32 @@ app.get('/', function (req,res) {
 });
 // GET ALL
 app.get('/todos', function (req,res) {
-  res.json(todos);
+  var query = req.query;
+  var filteredTodos = todos;
+
+  var filterAttributes = {};
+
+  if (query.hasOwnProperty('completed')) {
+    console.log(typeof query.completed)
+    console.log(query.completed)
+    switch (query.completed){
+      case 'true':
+      filterAttributes.completed = true;
+      break;
+      case 'false':
+      filterAttributes.completed = false;
+      break;
+    }
+  }
+  if (query.hasOwnProperty('description')) {
+    filterAttributes.description = query.description;
+  }
+  // use _.where to return
+  console.log(filterAttributes);
+  console.log(typeof filterAttributes.completed);
+  filteredTodos = _.where(todos,filterAttributes);
+
+  res.json(filteredTodos);
 });
 // GET
 app.get('/todos/:id', function (req,res) {
@@ -84,8 +109,6 @@ app.delete('/todos/:id', function (req,res) {
     res.status(404).json({"error": `delete item id: ${todoId} fail`});
   }
 });
-
-
 
 app.listen(PORT, function () {
   console.log("start express at: " + PORT);
