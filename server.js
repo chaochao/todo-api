@@ -19,8 +19,6 @@ app.get('/todos', function (req,res) {
   var filterAttributes = {};
 
   if (query.hasOwnProperty('completed')) {
-    console.log(typeof query.completed)
-    console.log(query.completed)
     switch (query.completed){
       case 'true':
       filterAttributes.completed = true;
@@ -34,8 +32,6 @@ app.get('/todos', function (req,res) {
     filterAttributes.description = query.description;
   }
   // use _.where to return
-  console.log(filterAttributes);
-  console.log(typeof filterAttributes.completed);
   filteredTodos = _.where(todos,filterAttributes);
 
   res.json(filteredTodos);
