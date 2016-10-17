@@ -15,7 +15,7 @@ app.get('/', function(req, res) {
 // GET ALL
 app.get('/todos', function(req, res) {
   var query = req.query;
-  var filteredTodos ={};
+  var filteredTodos = {};
 
   var filterAttributes = {};
 
@@ -37,17 +37,18 @@ app.get('/todos', function(req, res) {
 
   res.json(filteredTodos);
 });
-// GET
+// GET find by id
 app.get('/todos/:id', function(req, res) {
   var todoId = parseInt(req.params.id, 10);
-  var matchedTodo = _.findWhere(todos, {
-    id: todoId
+  var matchedTodo;
+
+  db.todo.findById(todoId).then(function(matchedTodo) {
+    if (matchedTodo) {
+      return res.json(matchedTodo)
+    } else {
+      return res.status(404).send();
+    }
   });
-  if (matchedTodo) {
-    res.json(matchedTodo)
-  } else {
-    res.status(404).send();
-  }
 });
 
 // POST
