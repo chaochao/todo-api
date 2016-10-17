@@ -15,27 +15,29 @@ app.get('/', function(req, res) {
 // GET ALL
 app.get('/todos', function(req, res) {
   var query = req.query;
-  var filteredTodos = {};
-
-  var filterAttributes = {};
+  var where = {};
 
   if (query.hasOwnProperty('completed')) {
     switch (query.completed) {
       case 'true':
-        filterAttributes.completed = true;
+        where.completed = true;
         break;
       case 'false':
-        filterAttributes.completed = false;
+        where.completed = false;
         break;
     }
   }
-  if (query.hasOwnProperty('description')) {
-    filterAttributes.description = query.description;
+  if (query.hasOwnProperty('description') && query.description.trim().length > 0) {
+    where.description = query.description;
   }
-  // use _.where to return
-  filteredTodos = _.where(todos, filterAttributes);
 
-  res.json(filteredTodos);
+  db.todo.findAll({
+    where: where
+  }).then(function(todos){
+    return res.json(todos);
+  }, function(e){
+    return res.status(500).json({"error": "can not get data from db."});
+  });
 });
 // GET find by id
 app.get('/todos/:id', function(req, res) {
@@ -51,8 +53,6 @@ app.get('/todos/:id', function(req, res) {
   }, function(e){
     return res.status(500).json({"error": "findById function call goes wrong"});
   });
-
-
 });
 
 // POST
