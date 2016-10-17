@@ -28,7 +28,7 @@ app.get('/todos', function(req, res) {
     }
   }
   if (query.hasOwnProperty('description') && query.description.trim().length > 0) {
-    where.description = query.description;
+    where.description = {$like: '%'+ query.description +'%'};
   }
 
   db.todo.findAll({
