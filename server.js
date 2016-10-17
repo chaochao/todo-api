@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var _ = require('underscore');
+var db = require('./db.js');
 var PORT = process.env.PORT || 3000
 
 var todos = [];
@@ -14,7 +15,7 @@ app.get('/', function(req, res) {
 // GET ALL
 app.get('/todos', function(req, res) {
   var query = req.query;
-  var filteredTodos = todos;
+  var filteredTodos ={};
 
   var filterAttributes = {};
 
@@ -53,17 +54,16 @@ app.get('/todos/:id', function(req, res) {
 app.post('/todos', function(req, res) {
   var body = req.body;
 
-  if (!_.isBoolean(body.completed) ||
-    !_.isString(body.description) ||
-    body.description.trim().length === 0) {
+  if (!_.isString(body.description) || body.description.trim().length === 0) {
     return res.status(400).send();
-
   }
-  console.log('description: ' + body.description);
   var body = _.pick(body, 'description', 'completed');
-  body.id = todoNextId++;
-  todos.push(body);
-  res.json(body);
+  //save to todo db
+  db.todo.create(body).then(function(todo) {
+    return res.json(todo.toJSON())
+  }, function(e) {
+    return res.status(400).json(e.toJSON())
+  });
 });
 
 //PUT
@@ -118,6 +118,14 @@ app.delete('/todos/:id', function(req, res) {
   }
 });
 
-app.listen(PORT, function() {
-  console.log("start express at: " + PORT);
-})
+var Sequelize = require('sequelize');
+var sequelize = new Sequelize(undefined, undefined, undefined, {
+  'dialect': 'sqlite',
+  'storage': __dirname + 'data/dev-todo-api.sqlite'
+});
+
+db.sequelize.sync().then(function() {
+  app.listen(PORT, function() {
+    console.log("start express at: " + PORT);
+  });
+});
