@@ -49,7 +49,7 @@ app.get('/todos/:id', function(req, res) {
       return res.status(404).json({"error": `can not find item with id ${todoId}`});
     }
   }, function(e){
-    return res.status(400).json({"error": "findById function call goes wrong"});
+    return res.status(500).json({"error": "findById function call goes wrong"});
   });
 
 
