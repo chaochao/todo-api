@@ -46,9 +46,13 @@ app.get('/todos/:id', function(req, res) {
     if (matchedTodo) {
       return res.json(matchedTodo)
     } else {
-      return res.status(404).send();
+      return res.status(404).json({"error": `can not find item with id ${todoId}`});
     }
+  }, function(e){
+    return res.status(400).json({"error": "findById function call goes wrong"});
   });
+
+
 });
 
 // POST
