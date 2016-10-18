@@ -36,9 +36,9 @@ app.get('/todos', function(req, res) {
   db.todo.findAll({
     where: where
   }).then(function(todos) {
-    return res.json(todos);
+    res.json(todos);
   }, function(e) {
-    return res.status(500).json({
+    res.status(500).json({
       "error": "can not get data from db."
     });
   });
@@ -50,14 +50,14 @@ app.get('/todos/:id', function(req, res) {
 
   db.todo.findById(todoId).then(function(matchedTodo) {
     if (matchedTodo) {
-      return res.json(matchedTodo)
+      res.json(matchedTodo)
     } else {
-      return res.status(404).json({
+      res.status(404).json({
         "error": `can not find item with id ${todoId}`
       });
     }
   }, function(e) {
-    return res.status(500).json({
+    res.status(500).json({
       "error": "findById function call goes wrong"
     });
   });
@@ -70,9 +70,9 @@ app.post('/todos', function(req, res) {
   var body = _.pick(body, 'description', 'completed');
   //save to todo db
   db.todo.create(body).then(function(todo) {
-    return res.json(todo.toJSON())
+    res.json(todo.toJSON())
   }, function(e) {
-    return res.status(400).json(e);
+    res.status(400).json(e);
   });
 });
 
@@ -90,7 +90,14 @@ app.put('/todos/:id', function(req, res) {
   }
   db.todo.findById(todoId).then(function(todo) {
     if (todo) {
-      return todo.update(attributes);
+      todo.update(attributes).then(function(todo) {
+        res.json(todo.toJSON());
+      }, function(e) {
+        res.status(400).json({
+          error: 'can not updated',
+          e: e.message
+        });
+      });
     } else {
       res.status(404).json({
         error: 'no such item'
@@ -98,13 +105,6 @@ app.put('/todos/:id', function(req, res) {
     }
   }, function(e) {
     res.status(404).json(e);
-  }).then(function(todo) {
-    res.json(todo.toJSON());
-  }, function(e) {
-    res.status(400).json({
-      error: 'can not updated',
-      e: e.message
-    });
   });
 });
 
