@@ -66,7 +66,6 @@ app.get('/todos/:id', function(req, res) {
 // POST
 app.post('/todos', function(req, res) {
   var body = req.body;
-
   var body = _.pick(body, 'description', 'completed');
   //save to todo db
   db.todo.create(body).then(function(todo) {
@@ -127,6 +126,21 @@ app.delete('/todos/:id', function(req, res) {
     }
   }, function(e) {});
 });
+//=======================
+//user POST 
+app.post('/users', function(req, res) {
+  var body = req.body;
+  var body = _.pick(body, 'email', 'password');
+
+  db.user.create(body).then(function(user) {
+    res.json(user.toJSON())
+  }, function(e) {
+    res.status(400).json(e);
+  });
+
+});
+
+
 
 db.sequelize.sync().then(function() {
   app.listen(PORT, function() {

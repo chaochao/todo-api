@@ -12,13 +12,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: false,
       validate: {
-        isBoolean: function(value){
+        isBoolean: function(value) {
           return (typeof value === 'boolean')
         }
       }
-
     }
-
-  })
-
+  });
 };
