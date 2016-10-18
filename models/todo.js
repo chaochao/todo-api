@@ -10,7 +10,13 @@ module.exports = function(sequelize, DataTypes) {
     completed: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false
+      defaultValue: false,
+      validate: {
+        isBoolean: function(value){
+          return (typeof value === 'boolean')
+        }
+      }
+
     }
 
   })
