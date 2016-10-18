@@ -28,15 +28,19 @@ app.get('/todos', function(req, res) {
     }
   }
   if (query.hasOwnProperty('description') && query.description.trim().length > 0) {
-    where.description = {$like: '%'+ query.description +'%'};
+    where.description = {
+      $like: '%' + query.description + '%'
+    };
   }
 
   db.todo.findAll({
     where: where
-  }).then(function(todos){
+  }).then(function(todos) {
     return res.json(todos);
-  }, function(e){
-    return res.status(500).json({"error": "can not get data from db."});
+  }, function(e) {
+    return res.status(500).json({
+      "error": "can not get data from db."
+    });
   });
 });
 // GET find by id
@@ -48,10 +52,14 @@ app.get('/todos/:id', function(req, res) {
     if (matchedTodo) {
       return res.json(matchedTodo)
     } else {
-      return res.status(404).json({"error": `can not find item with id ${todoId}`});
+      return res.status(404).json({
+        "error": `can not find item with id ${todoId}`
+      });
     }
-  }, function(e){
-    return res.status(500).json({"error": "findById function call goes wrong"});
+  }, function(e) {
+    return res.status(500).json({
+      "error": "findById function call goes wrong"
+    });
   });
 });
 
@@ -108,25 +116,22 @@ app.put('/todos/:id', function(req, res) {
 
 //DELETE
 app.delete('/todos/:id', function(req, res) {
+
   var todoId = parseInt(req.params.id, 10);
-  var matchedTodo = _.findWhere(todos, {
-    id: todoId
-  });
-
-  if (matchedTodo) {
-    todos = _.without(todos, matchedTodo);
-    res.json(matchedTodo);
-  } else {
-    res.status(404).json({
-      "error": `delete item id: ${todoId} fail`
-    });
-  }
-});
-
-var Sequelize = require('sequelize');
-var sequelize = new Sequelize(undefined, undefined, undefined, {
-  'dialect': 'sqlite',
-  'storage': __dirname + 'data/dev-todo-api.sqlite'
+  db.todo.destroy({
+    where: {
+      id: todoId
+    }
+  }).then(function(rowsDeleted) {
+    console.log(rowsDeleted);
+    if (rowsDeleted === 0) {
+      res.status(404).json({
+        error: 'NO todo with such id'
+      })
+    } else {
+      res.status(204).send();
+    }
+  }, function(e) {});
 });
 
 db.sequelize.sync().then(function() {
