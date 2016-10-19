@@ -12,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     salt: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     password_hash: {
       type: DataTypes.STRING
@@ -34,18 +34,17 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     hooks: {
-      beforevalidation: function(user, option) {
+      beforeValidate: function(user, option) {
         if (typeof user.email === 'string') {
-          user.email = user.email.toLowerCase().trim();
+          user.email = user.email.toLowerCase();
         }
-
       }
     },
     classMethods: {
       authenticate: function(body) {
         return new Promise(function(resolve, reject) {
           if (typeof body.email !== 'string' || typeof body.password !== 'string') {
-            reject();
+            return reject();
           }
           user.findOne({
             where: {
@@ -59,7 +58,7 @@ module.exports = function(sequelize, DataTypes) {
             }
 
           }, function(e) {
-            reject();
+            return reject();
           });
         });
       }
