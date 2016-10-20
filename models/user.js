@@ -64,7 +64,7 @@ module.exports = function(sequelize, DataTypes) {
           });
         });
       },
-      findbyToken: function(token) {
+      findByToken: function(token) {
         return new Promise(function(resolve, reject) {
           try {
             var decodedJWT = jwt.verify(token, 'anotherkey');
@@ -78,7 +78,7 @@ module.exports = function(sequelize, DataTypes) {
               }
 
             }, function(e) {
-              console.log(e)
+              console.error(e)
               reject();
             });
           } catch (e) {

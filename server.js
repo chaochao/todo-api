@@ -134,7 +134,6 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
       userId: req.user.id
     }
   }).then(function(rowsDeleted) {
-    console.log(rowsDeleted);
     if (rowsDeleted === 0) {
       res.status(404).json({
         error: 'NO todo with such id'
@@ -158,25 +157,33 @@ app.post('/users', function(req, res) {
 
 });
 
-//POST  user login
+// POST /users/login
+app.post('/users/login', function (req, res) {
+  var body = _.pick(req.body, 'email', 'password');
+  var userInstance;
 
-app.post('/users/login', function(req, res) {
-  var body = req.body;
-  var body = _.pick(body, 'email', 'password');
-
-  db.user.authenticate(body).then(function(user){
+  db.user.authenticate(body).then(function (user) {
     var token = user.generateToken('authentication');
-    if (token) {
-      res.header('Auth', user.generateToken('authentication')).json(user.toPublicJSON());
-    } else {
-      res.status(401).send();
-    }
-
-  }, function() {
+    userInstance = user;
+    return db.token.create({
+      token: token
+    });
+  }).then(function (tokenInstance) {
+    res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
+  }).catch(function () {
     res.status(401).send();
-  })
+  });
 });
 
+//DELETE /user/logout
+app.delete('/users/logout', middleware.requireAuthentication, function(req,res){
+  req.token.destroy().then(function(){
+    res.status(204).send()
+  }).catch(function(e){
+    console.log(e);
+    res.status(500).send();
+  })
+});
 
 db.sequelize.sync({
   force: true
