@@ -63,6 +63,28 @@ module.exports = function(sequelize, DataTypes) {
             return reject();
           });
         });
+      },
+      findbyToken: function(token) {
+        return new Promise(function(resolve, reject) {
+          try {
+            var decodedJWT = jwt.verify(token, 'anotherkey');
+            var btyes = cryptojs.AES.decrypt(decodedJWT.token, 'key');
+            var tokenData = JSON.parse(btyes.toString(cryptojs.enc.Utf8));
+            user.findById(tokenData.id).then(function(user) {
+              if (user) {
+                resolve(user);
+              } else {
+                reject();
+              }
+
+            }, function(e) {
+              console.log(e)
+              reject();
+            });
+          } catch (e) {
+            reject();
+          }
+        });
       }
     },
     // for more info http://docs.sequelizejs.com/en/2.0/docs/models-definition/
@@ -71,19 +93,21 @@ module.exports = function(sequelize, DataTypes) {
       toPublicJSON: function() {
         return _.pick(this, 'id', 'email', 'createdAt', 'updatedAt');
       },
-      generateToken: function(type){
-        if(!type){
+      generateToken: function(type) {
+        if (!type) {
           return undefined;
         }
-        try{
-          // key should be generate each time
-          var stringData = JSON.stringify({id: this.id, type: type});
-          var encryptData = cryptojs.AES.encrypt(stringData,'key').toString();
+        try {
+          var stringData = JSON.stringify({
+            id: this.id,
+            type: type
+          });
+          var encryptData = cryptojs.AES.encrypt(stringData, 'key').toString();
           var token = jwt.sign({
             token: encryptData
           }, 'anotherkey');
           return token;
-        }catch(e){
+        } catch (e) {
           console.error(e)
           return undefined;
         }
