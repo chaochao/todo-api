@@ -70,7 +70,13 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
   var body = _.pick(body, 'description', 'completed');
   //save to todo db
   db.todo.create(body).then(function(todo) {
-    res.json(todo.toJSON())
+    // res.json(todo.toJSON())
+    // associate user
+    req.user.addTodo(todo).then(function(user){
+      return todo.reload();// this is for return the todo with userId
+    }).then(function(todo){
+      res.json(todo.toJSON())
+    });
   }, function(e) {
     res.status(400).json(e);
   });
