@@ -175,8 +175,8 @@ app.post('/users/login', function (req, res) {
   });
 });
 
-//DELETE /user/logout
-app.delete('/users/logout', middleware.requireAuthentication, function(req,res){
+//DELETE /user/login
+app.delete('/users/login', middleware.requireAuthentication, function(req,res){
   req.token.destroy().then(function(){
     res.status(204).send()
   }).catch(function(e){
