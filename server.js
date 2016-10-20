@@ -165,6 +165,9 @@ app.post('/users/login', function (req, res) {
   db.user.authenticate(body).then(function (user) {
     var token = user.generateToken('authentication');
     userInstance = user;
+    //everytime you login it will create new token
+    // if you forget and double login the old token will be in db
+    //FOREVER!
     return db.token.create({
       token: token
     });
